@@ -11,6 +11,14 @@ spring:
       maximum-pool-size: 15
       minimum-idle: 5
       idle-timeout: 30000
+  mail:
+    host: smtp.163.com
+    port: 465
+    username: kee_yang@163.com
+    password: IVDXAQKNTCMVRKWC
+    protocol: smtps
+    properties:
+      mail.smtp.ssl.enable: true
 
 server:
   servlet:
