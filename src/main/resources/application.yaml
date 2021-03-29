@@ -29,3 +29,7 @@ mybatis:
   type-aliases-package: com.k.community.entity
   configuration.useGeneratedKeys: true
   configuration.mapUnderscoreToCamelCase: true
+
+community:
+  path:
+    domain: http://localhost:8080
