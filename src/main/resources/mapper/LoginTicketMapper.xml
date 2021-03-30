@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.k.community.dao.LoginTicketMapper">
+  <resultMap id="BaseResultMap" type="com.k.community.entity.LoginTicket">
+    <!--@Table login_ticket-->
+    <id column="id" property="id" />
+    <result column="user_id" property="userId" />
+    <result column="ticket" property="ticket" />
+    <result column="status" property="status" />
+    <result column="expired" property="expired" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, user_id, ticket, `status`, expired
+  </sql>
+
+  <insert id="insertLoginTicket" keyProperty="id">
+    insert into community.login_ticket (user_id, ticket, status, expired) VALUES (#{userId},#{ticket},#{status},#{expired});
+  </insert>
+
+  <select id="selectByTicket" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/> from community.login_ticket where ticket=#{ticket};
+  </select>
+
+  <update id="updateStatus">
+    update community.login_ticket set status=#{status} where ticket=#{ticket};
+  </update>
+</mapper>
