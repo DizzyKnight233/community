@@ -20,4 +20,16 @@ public interface CommunityConstant {
      * 校验失败
      */
     int ACTIVATION_ERROR=2;
+
+    /**
+     * 默认登陆凭证保存时间:12hours
+     */
+    int DEFAULT_EXPIRED_SECONDS=3600*12;
+
+    /**
+     * 勾选记住我登陆凭证保存时间:30days
+     */
+    int REMEMBER_EXPIRED_SECONDS=3600*24*30;
+
 }
+

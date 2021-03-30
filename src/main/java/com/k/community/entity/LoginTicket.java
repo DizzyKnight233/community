@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 *
 */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+
 public class LoginTicket {
     private Integer id;
 
@@ -28,4 +28,11 @@ public class LoginTicket {
     private Integer status;
 
     private Date expired;
+
+    public LoginTicket(Integer userId, String ticket, Integer status, Date expired) {
+        this.userId = userId;
+        this.ticket = ticket;
+        this.status = status;
+        this.expired = expired;
+    }
 }

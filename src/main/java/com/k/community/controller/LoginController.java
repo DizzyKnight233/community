@@ -5,17 +5,21 @@ import com.k.community.entity.User;
 import com.k.community.service.UserService;
 import com.k.community.util.CommunityConstant;
 import com.k.community.util.MailClient;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
@@ -36,9 +40,12 @@ public class LoginController implements CommunityConstant {
     @Autowired
     private Producer producer;
 
+    @Value("server.servlet.context-path")
+    private String contextPath;
+
     private static final Logger logger= LoggerFactory.getLogger(MailClient.class);
 
-    @RequestMapping(value = "/login",method = RequestMethod.GET)
+    @RequestMapping(value = "/loginPage",method = RequestMethod.GET)
     public String getLoginPage(){
         return "site/login";
     }
@@ -92,6 +99,36 @@ public class LoginController implements CommunityConstant {
             logger.error("响应验证码失败："+e.getMessage());
         }
     }
+
+    @RequestMapping(value = "/login",method = RequestMethod.POST)
+    public String login(String username,String password,String code,boolean rememberMe,Model model,
+                        HttpSession session,HttpServletResponse response){
+        String kaptchaText = (String) session.getAttribute("kaptchaText");
+        if(StringUtils.isBlank(kaptchaText)||StringUtils.isBlank(code)|| !kaptchaText.equalsIgnoreCase(code)){
+            model.addAttribute("codeMsg","验证码错误");
+            return "/site/login";
+        }
+        int expirySeconds=rememberMe?REMEMBER_EXPIRED_SECONDS:DEFAULT_EXPIRED_SECONDS;
+        Map<String, Object> map = userService.login(username, password, expirySeconds);
+        if(map.containsKey("loginTicket")){
+            Cookie cookie=new Cookie("ticket",map.get("loginTicket").toString());
+            cookie.setPath(contextPath);
+            cookie.setMaxAge(expirySeconds);
+            response.addCookie(cookie);
+            return "redirect:/index";
+        }else{
+            model.addAttribute("usernameMsg",map.get("usernameMsg"));
+            model.addAttribute("pwdMsg",map.get("pwdMsg"));
+            return "site/login";
+        }
+    }
+
+    @RequestMapping(value = "/logout",method = RequestMethod.GET)
+    public String logout(@CookieValue("ticket") String ticket){
+        userService.logout(ticket);
+        return "redirect:/loginPage";
+    }
+
 
 
 
