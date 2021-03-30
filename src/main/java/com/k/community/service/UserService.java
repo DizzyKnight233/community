@@ -2,6 +2,7 @@ package com.k.community.service;
 
 import com.k.community.dao.UserMapper;
 import com.k.community.entity.User;
+import com.k.community.util.CommunityConstant;
 import com.k.community.util.CommunityUtil;
 import com.k.community.util.MailClient;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +24,7 @@ import java.util.Random;
  * @Date 2021/3/26
  */
 @Service
-public class UserService {
+public class UserService implements CommunityConstant {
     @Autowired
     private UserMapper userMapper;
     @Autowired
@@ -86,5 +87,18 @@ public class UserService {
         String content=templateEngine.process("/mail/activation",context);
         mailClient.sendMail(user.getEmail(),"激活账号",content);
         return map;
+    }
+
+    public int activation(int id,String code){
+        User user = userMapper.selectById(id);
+        if(user.getStatus()==1){
+            return ACTIVATION_REPEAT;
+        }
+        if(user.getActivationCode().equals(code)){
+            userMapper.updateStatus(id,1);
+            return ACTIVATION_SUCCESS;
+        }
+        return ACTIVATION_ERROR;
+
     }
 }

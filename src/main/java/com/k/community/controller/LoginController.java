@@ -2,9 +2,12 @@ package com.k.community.controller;
 
 import com.k.community.entity.User;
 import com.k.community.service.UserService;
+import com.k.community.util.CommunityConstant;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -17,9 +20,14 @@ import java.util.Map;
  * @Date 2021/3/29
  */
 @Controller
-public class LoginController {
+public class LoginController implements CommunityConstant {
     @Autowired
     private UserService userService;
+
+    @RequestMapping(value = "/login",method = RequestMethod.GET)
+    public String getLoginPage(){
+        return "site/login";
+    }
 
     @RequestMapping(value = "/register",method = RequestMethod.GET)
     public String getRegisterPage(){
@@ -39,6 +47,22 @@ public class LoginController {
             model.addAttribute("pwdMsg",map.get("pwdMsg"));
             return "site/register";
         }
+    }
+
+    @RequestMapping(value = "/activation/{id}/{active}",method = RequestMethod.GET)
+    public String activation(@PathVariable("id") int id, @PathVariable("active") String code, Model model){
+        int result = userService.activation(id, code);
+        if(result==ACTIVATION_SUCCESS){
+            model.addAttribute("msg","您的账号已经激活成功,可以正常使用了!");
+            model.addAttribute("target","/login");
+        }else if(result==ACTIVATION_REPEAT){
+            model.addAttribute("msg","您的账号已经激活过了,请直接登录!");
+            model.addAttribute("target","/login");
+        }else {
+            model.addAttribute("msg","激活失败，请检查连接是否正确!");
+            model.addAttribute("target","/index");
+        }
+        return  "/site/operate-result";
     }
 
 
